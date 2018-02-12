@@ -1,30 +1,34 @@
-#from flask import flask
 from config import token
+from time import sleep
 import requests
-import json
 
 URL = 'https://api.telegram.org/bot'+token+'/'
 
-def write_json(data, filename='answer.json'):
-    with open(filename, 'a') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-def get_updates():
-    r = requests.get(URL+'getUpdates')
+def get_updates_json(request):  
+    r = requests.get(request + 'getUpdates')
     return r.json()
 
-def send_message(chat_id, text="blank text"):
-    answer = {'chat_id': chat_id, 'text': text}
-    r = requests.post(URL+'sendMessage', json=answer)
+def last_update(data):  
+    results = data['result']
+    total_updates = len(results) - 1
+    return results[total_updates]
+
+def get_chat_id(update):  
+    chat_id = update['message']['chat']['id']
+    return chat_id
+
+def send_message(chat_id, text):
+    params = {'chat_id': chat_id, 'text': text}
+    r = requests.post(URL+'sendMessage', json=params)
     return r.json()
 
-#method could be getUpdates
-def main():
-    r = get_updates()
-    chat_id = r['result'][-1]['message']['chat']['id']
-    send_message(chat_id)
+def main():  
+    update_id = last_update(get_updates_json(URL))['update_id']
+    while True:
+        if update_id == last_update(get_updates_json(URL))['update_id']:
+           send_message(get_chat_id(last_update(get_updates_json(URL))), 'blank_text')
+           update_id += 1
+        sleep(1)       
 
-#app = Flask(__name__)
-
-#if __name__ is '__main__':
-#    app.run()
+if __name__ == '__main__':  
+    main()
