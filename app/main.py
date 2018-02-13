@@ -32,7 +32,7 @@ def main():
         if update_id == last_update(get_updates_json(URL))['update_id']:
            datetime = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(int(str(get_btc('timestamp'))[:10])))
            marketprice = round(get_btc('market_price_usd'), 2)
-           send_message(get_chat_id(last_update(get_updates_json(URL))), "По состоянию на {0} курс Биткоина равен {1} USD".format(datetime, marketprice))
+           send_message(get_chat_id(last_update(get_updates_json(URL))), "By {0} MSK Bitcoin costs {1} USD".format(datetime, marketprice))
            update_id += 1
         time.sleep(1)       
 
