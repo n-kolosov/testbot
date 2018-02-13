@@ -1,5 +1,5 @@
 from config import token
-from time import sleep
+import time
 import requests
 
 URL = 'https://api.telegram.org/bot'+token+'/'
@@ -22,17 +22,19 @@ def send_message(chat_id, text):
     r = requests.post(URL+'sendMessage', json=params)
     return r.json()
 
-def get_btc():
+def get_btc(key):
     r = requests.get('https://api.blockchain.info/stats').json()
-    return r['market_price_usd']
+    return r[key]
 
 def main():  
     update_id = last_update(get_updates_json(URL))['update_id']
     while True:
         if update_id == last_update(get_updates_json(URL))['update_id']:
-           send_message(get_chat_id(last_update(get_updates_json(URL))), get_btc())
+           datetime = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(int(str(get_btc('timestamp'))[:10])))
+           marketprice = round(get_btc('market_price_usd'), 2)
+           send_message(get_chat_id(last_update(get_updates_json(URL))), "По состоянию на {0} курс Биткоина равен {1} USD".format(datetime, marketprice))
            update_id += 1
-        sleep(1)       
+        time.sleep(1)       
 
 if __name__ == '__main__':  
     main()
