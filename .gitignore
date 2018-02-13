@@ -105,3 +105,4 @@ config.py
 
 # Temporary files
 answer.json
+blank.py
